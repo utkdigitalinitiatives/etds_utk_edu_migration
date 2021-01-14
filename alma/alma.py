@@ -113,5 +113,4 @@ class BibRecord:
                         not in subjects
                     ):
                         subjects.append(subfield["#text"].rstrip(".").replace(",", ";"))
-        print(subjects)
         return ", ".join(subjects)
