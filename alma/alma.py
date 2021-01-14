@@ -82,7 +82,7 @@ class BibRecord:
         for field in self.record["record"]["datafield"]:
             if field["@tag"] == "502":
                 return field["subfield"]["#text"]
-        raise Exception(f"Could not determine degree type: {self.get_mms_id}")
+        raise Exception(f"Could not determine degree type: {self.get_mms_id()}")
 
     def get_abstract(self):
         abstract = ""
