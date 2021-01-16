@@ -18,7 +18,10 @@ class PrimoSearch:
 
     @staticmethod
     def __confirm_if_etd(pnx_record):
-        if "manuscript" in pnx_record["display"]["type"] and "Alma" in pnx_record["display"]["source"]:
+        if (
+            "manuscript" in pnx_record["display"]["type"]
+            and "Alma" in pnx_record["display"]["source"]
+        ):
             return
         else:
             raise Exception(f"{pnx_record['display']['mms']} is not an etd.")
@@ -36,7 +39,9 @@ class PrimoSearch:
             >>> PrimoSearch("API-KEY").find_local_etd("tectonic implications of para- and orthogneiss geochronology and geochemistry from the southern appalachian crystalline core")
 
         """
-        primo_response = get(f"{self.regional_id}/primo/v1/search?vid={self.vid}&scope={self.scope}&tab={self.tab}&q=title,contains,{etd_title}&apikey={self.__api_key}").json()
+        primo_response = get(
+            f"{self.regional_id}/primo/v1/search?vid={self.vid}&scope={self.scope}&tab={self.tab}&q=title,contains,{etd_title}&apikey={self.__api_key}"
+        ).json()
         first_result = primo_response["docs"][0]
         self.__confirm_if_etd(first_result["pnx"])
         return first_result["pnx"]["display"]["mms"][0]
