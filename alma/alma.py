@@ -99,12 +99,15 @@ class BibRecord:
         for field in self.record["record"]["datafield"]:
             if field["@tag"] == "650":
                 for subfield in field["subfield"]:
-                    if (
-                        subfield["@code"] == "a"
-                        and subfield["#text"].rstrip(".").replace(",", ";")
-                        not in subjects
-                    ):
-                        subjects.append(subfield["#text"].rstrip(".").replace(",", ";"))
+                    try:
+                        if (
+                            "a" in subfield["@code"]
+                            and subfield["#text"].rstrip(".").replace(",", ";")
+                            not in subjects
+                        ):
+                            subjects.append(subfield["#text"].rstrip(".").replace(",", ";"))
+                    except TypeError:
+                        pass
             elif field["@tag"] == "690":
                 for subfield in field["subfield"]:
                     if (
