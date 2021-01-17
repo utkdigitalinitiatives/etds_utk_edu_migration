@@ -2,6 +2,7 @@ import csv
 from tqdm import tqdm
 from primo.primo import PrimoSearch
 import yaml
+from alma.alma import BibRetriever
 
 
 class ETD:
@@ -52,14 +53,25 @@ def prep_mms_ids_for_searching(etds):
     ]
     max_size = 99
     return [
-        mms_ids[i * max_size: (i + 1) * max_size]
+        mms_ids[i * max_size : (i + 1) * max_size]
         for i in range((len(mms_ids) + max_size - 1) // max_size)
         if i != "Cannot find in Primo based on title."
     ]
+
+
+def get_bib_records_from_alma(a_list_of_etds_as_dicts, alma_api):
+    alma_data = []
+    approved_searches = prep_mms_ids_for_searching(a_list_of_etds_as_dicts)
+    for search in approved_searches:
+        results = BibRetriever(alma_api, search).get_bibs()
+        for result in results:
+            alma_data.append(result)
+    return alma_data
 
 
 if __name__ == "__main__":
     api_key = yaml.safe_load(open("config.yml", "r"))["api_key"]
     missing_etds = read_etd_csv("data/test.csv")
     updated_etds = lookup_etd_in_primo(missing_etds)
-    print(updated_etds)
+    etds_found_in_alma = get_bib_records_from_alma(updated_etds, api_key)
+    print(etds_found_in_alma)
