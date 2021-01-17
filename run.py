@@ -44,6 +44,20 @@ def lookup_etd_in_primo(list_of_etds):
     return list_of_etds
 
 
+def prep_mms_ids_for_searching(etds):
+    mms_ids = [
+        etd["mms"]
+        for etd in etds
+        if etd["mms"] != "Cannot find in Primo based on title."
+    ]
+    max_size = 99
+    return [
+        mms_ids[i * max_size: (i + 1) * max_size]
+        for i in range((len(mms_ids) + max_size - 1) // max_size)
+        if i != "Cannot find in Primo based on title."
+    ]
+
+
 if __name__ == "__main__":
     api_key = yaml.safe_load(open("config.yml", "r"))["api_key"]
     missing_etds = read_etd_csv("data/test.csv")
