@@ -25,6 +25,36 @@ class ETD:
         }
 
 
+class TraceMigrater:
+    def __init__(self, primo_etds, alma_etds, filename="migrate.csv"):
+        self.filename = filename
+        self.final_etds = self.__merge_etds(alma_etds, primo_etds)
+
+    @staticmethod
+    def __add_new_fields(an_etd):
+        an_etd["link_to_pdf"] = ""
+        an_etd["thesis_advisor"] = ""
+        an_etd["degree"] = ""
+        an_etd["abstract"] = ""
+        an_etd["subjects_and_keywords"] = ""
+        return an_etd
+
+    def __merge_etds(self, etds_from_alma, etds_from_primo):
+        final_etds = []
+        for primo_etd in etds_from_primo:
+            primo_etd = self.__add_new_fields(primo_etd)
+            for alma_etd in etds_from_alma:
+                if primo_etd["mms"] == alma_etd["mms_id"]:
+                    primo_etd["link_to_pdf"] = alma_etd["link_to_pdf"]
+                    primo_etd["thesis_advisor"] = alma_etd["thesis_advisor"]
+                    primo_etd["degree"] = alma_etd["degree"]
+                    primo_etd["abstract"] = alma_etd["abstract"]
+                    primo_etd["subjects_and_keywords"] = alma_etd["subjects_and_keywords"]
+                    break
+            final_etds.append(primo_etd)
+        return final_etds
+
+
 def read_etd_csv(a_csv):
     etds = []
     with open(a_csv, "r") as original_csv:
@@ -74,4 +104,5 @@ if __name__ == "__main__":
     missing_etds = read_etd_csv("data/test.csv")
     updated_etds = lookup_etd_in_primo(missing_etds)
     etds_found_in_alma = get_bib_records_from_alma(updated_etds, api_key)
-    print(etds_found_in_alma)
+    with open("alma_data.py", "w") as alma_data:
+        alma_data.write(etds_found_in_alma)
