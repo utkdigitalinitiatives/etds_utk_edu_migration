@@ -45,7 +45,7 @@ class TraceMigrater:
             primo_etd = self.__add_new_fields(primo_etd)
             for alma_etd in etds_from_alma:
                 if primo_etd["mms"] == alma_etd["mms_id"]:
-                    primo_etd["link_to_pdf"] = alma_etd["link_to_pdf"]
+                    primo_etd["link_to_pdf"] = alma_etd["link_to_etd"]
                     primo_etd["thesis_advisor"] = alma_etd["thesis_advisor"]
                     primo_etd["degree"] = alma_etd["degree"]
                     primo_etd["abstract"] = alma_etd["abstract"]
@@ -59,7 +59,10 @@ class TraceMigrater:
 
     @staticmethod
     def determine_degree_name(degree):
-        return degree.split('(')[1].split(')')[0]
+        try:
+            return degree.split('(')[1].split(')')[0]
+        except IndexError:
+            return ""
 
     def generate_migration_spreadsheet(self, filename="migration.csv"):
         with open(filename, "w") as migration_csv:
