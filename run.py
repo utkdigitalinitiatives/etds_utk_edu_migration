@@ -121,7 +121,7 @@ class TraceMigrater:
                         "document_type": etd["document_type"],
                         "embargo_date": "",
                         "instruct": "",
-                        "publication_date": etd["date_of_award"],
+                        "publication_date": etd["date_of_award"].title(),
                         "season": "",
                     }
                 )
