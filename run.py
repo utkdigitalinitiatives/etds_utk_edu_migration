@@ -49,10 +49,80 @@ class TraceMigrater:
                     primo_etd["thesis_advisor"] = alma_etd["thesis_advisor"]
                     primo_etd["degree"] = alma_etd["degree"]
                     primo_etd["abstract"] = alma_etd["abstract"]
-                    primo_etd["subjects_and_keywords"] = alma_etd["subjects_and_keywords"]
+                    primo_etd["subjects_and_keywords"] = alma_etd[
+                        "subjects_and_keywords"
+                    ]
+                    primo_etd["title"] = alma_etd["title"]
                     break
             final_etds.append(primo_etd)
         return final_etds
+
+    @staticmethod
+    def determine_degree_name(degree):
+        return degree.split('(')[1].split(')')[0]
+
+    def generate_migration_spreadsheet(self, filename="migration.csv"):
+        with open(filename, "w") as migration_csv:
+            headings = [
+                "title",
+                "fulltext_url",
+                "keywords",
+                "abstract",
+                "author1_fname",
+                "author1_mname",
+                "author1_lname",
+                "author1_suffix",
+                "author1_email",
+                "author1_institution",
+                "advisor1",
+                "advisor2",
+                "advisor3",
+                "author1_orcid",
+                "disciplines",
+                "comments",
+                "degree_name",
+                "department",
+                "document_type",
+                "embargo_date",
+                "instruct",
+                "publication_date",
+                "season",
+            ]
+            writer = csv.DictWriter(
+                migration_csv, delimiter='|',
+                fieldnames=headings,
+                quotechar="'"
+            )
+            writer.writeheader()
+            for etd in self.final_etds:
+                writer.writerow(
+                    {
+                        "title": etd["title"],
+                        "fulltext_url": etd["link_to_pdf"],
+                        "keywords": etd["subjects_and_keywords"],
+                        "abstract": etd["abstract"],
+                        "author1_fname": "",
+                        "author1_mname": "",
+                        "author1_lname": "",
+                        "author1_suffix": "",
+                        "author1_email": "",
+                        "author1_institution": "University of Tennessee",
+                        "advisor1": etd["thesis_advisor"],
+                        "advisor2": "",
+                        "advisor3": "",
+                        "author1_orcid": "",
+                        "disciplines": "",
+                        "comments": "",
+                        "degree_name": self.determine_degree_name(etd["degree"]),
+                        "department": "",
+                        "document_type": etd["document_type"],
+                        "embargo_date": "",
+                        "instruct": "",
+                        "publication_date": etd["date_of_award"],
+                        "season": "",
+                    }
+                )
+        return
 
 
 def read_etd_csv(a_csv):
@@ -104,5 +174,7 @@ if __name__ == "__main__":
     missing_etds = read_etd_csv("data/test.csv")
     updated_etds = lookup_etd_in_primo(missing_etds)
     etds_found_in_alma = get_bib_records_from_alma(updated_etds, api_key)
+    # Write Alma Response as a Precaution
     with open("alma_data.py", "w") as alma_data:
-        alma_data.write(etds_found_in_alma)
+        alma_data.write(str(etds_found_in_alma))
+    TraceMigrater(primo_etds=updated_etds, alma_etds=etds_found_in_alma).generate_migration_spreadsheet()
