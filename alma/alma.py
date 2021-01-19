@@ -62,7 +62,7 @@ class BibRecord:
     def get_thesis_advisor(self):
         for field in self.record["record"]["datafield"]:
             if field["@tag"] == "500" and field["subfield"]["#text"].startswith(
-                "Thesis advisor:"
+                "Thesis advisor"
             ):
                 return (
                     field["subfield"]["#text"]
